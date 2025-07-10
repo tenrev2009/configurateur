@@ -1,0 +1,40 @@
+# encoding: UTF-8
+require 'yaml'
+require_relative '../constants'
+
+module SketchupDynLibManager
+  module Models
+    class ComponentProfile
+      attr_accessor :name, :parameters
+
+      def initialize(name, parameters = {})
+        @name       = name
+        @parameters = parameters
+      end
+
+      def to_h
+        { 'name' => @name, 'parameters' => @parameters }
+      end
+
+      # Charge tous les profils depuis le YML
+      def self.load_all
+        path = Constants::PROFILES_PATH
+        if File.exist?(path)
+          YAML.load_file(path).map do |h|
+            new(h['name'], h['parameters'])
+          end
+        else
+          []
+        end
+      end
+
+      # Sauvegarde l’ensemble des profils
+      def self.save_all(profiles)
+        File.open(Constants::PROFILES_PATH, 'w') do |f|
+          f.write(profiles.map(&:to_h).to_yaml)
+        end
+      end
+
+    end
+  end
+end
